@@ -172,6 +172,84 @@ def generate_combinations_4(n, numbers, ops, sample=0):
                   n += 1
     return n, combinations if sample < 1 else random.sample(combinations, sample)
 
+def generate_comparison_expressions(n, numbers, sample=0, show_answer=False):
+    """
+    生成比较运算表达式。
+    :param n: 表达式的编号
+    :param numbers: 可用的数字列表
+    :param sample: 采样数量
+    :param show_answer: 是否显示标准答案
+    :return: 更新后的编号和生成的表达式列表
+    """
+    comparisons = []
+    operators = ['>', '<']
+    
+    for op in operators:
+        for a in numbers:
+            # ( ) > a
+            if op == '>':
+                answer = a + 1
+            else:
+                answer = a - 1
+            if 0 <= answer < 10:
+                exp = f"{n}. (  ) {op} {a}"
+                if show_answer:
+                    exp += f"  # ({answer}) {op} {a}"
+                comparisons.append(exp)
+                n += 1
+            
+            # a > ( )
+            if op == '>':
+                answer = a - 1
+            else:
+                answer = a + 1
+            if 0 <= answer < 10:
+                exp = f"{n}. {a} {op} (  )"
+                if show_answer:
+                    exp += f"  # {a} {op} ({answer})"
+                comparisons.append(exp)
+                n += 1
+            
+            for b in numbers:
+                # ( ) + a > b + ( )
+                if op == '>':
+                    answer_left = b + 1
+                    answer_right = a - 1
+                else:
+                    answer_left = b - 1
+                    answer_right = a + 1
+                if 0 <= answer_left < 10 and 0 <= answer_right < 10 and (answer_left + a) <= 10:
+                    exp = f"{n}. (  ) + {a} {op} {b} + (  )"
+                    if show_answer:
+                        exp += f"  # ({answer_left}) + {a} {op} {b} + ({answer_right})"
+                    comparisons.append(exp)
+                    n += 1
+                
+                # a + b < ( ) - ( )
+                if op == '>':
+                    answer = a + b + 1
+                else:
+                    answer = a + b - 1
+                if 0 <= answer < 10 and (a + b) < 10:
+                    exp = f"{n}. {a} + {b} {op} (  ) - (  )"
+                    if show_answer:
+                        exp += f"  # {a} + {b} {op} ({answer}) - ( )"
+                    comparisons.append(exp)
+                    n += 1
+
+                # a + b < ( ) - ( ) with answer
+                if op == '>':
+                    answer = a + b + 1
+                else:
+                    answer = a + b - 1
+                if 0 <= answer < 10 and (a + b) < 10:
+                    exp = f"{n}. {a} + {b} {op} (  ) - (  )"
+                    if show_answer:
+                        exp += f"  # {a} + {b} {op} ({answer}) - ( )"
+                    comparisons.append(exp)
+                    n += 1
+
+    return n, comparisons if sample < 1 else random.sample(comparisons, sample)
 
 all = []
 
@@ -207,6 +285,10 @@ all += combinations_3
 
 n, combinations_4 = generate_combinations_4(n, numbers, ops, 20)
 all += combinations_4
+
+n, comparison_expressions = generate_comparison_expressions(n, numbers, 5, show_answer=True)
+exp_comparison = map(lambda x: x.split('#')[0], comparison_expressions)
+all += exp_comparison
 
 all = map(lambda x: x.split('. ')[1], all)
 all = list(filter(lambda x: '(' in x, all))
