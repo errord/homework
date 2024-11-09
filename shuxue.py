@@ -296,6 +296,23 @@ all = list(filter(lambda x: '0' not in x, all))
 random.shuffle(all)
 all = all[0:100]
 
-print("\n运算组合:")
-for idx, combo in enumerate(all):
-    print(f'{idx+1}. {combo}')
+
+def print_expressions_in_columns(expressions, columns=3):
+    """
+    打印表达式，按指定列数对齐。
+    :param expressions: 表达式列表
+    :param columns: 每行的列数
+    """
+    # 计算每列的最大宽度
+    max_width = max(len(expr) for expr in expressions) + 5  # 添加一些空格用于间隔
+
+    # 逐行打印表达式
+    for i in range(0, len(expressions), columns):
+        line = ""
+        for j in range(columns):
+            if i + j < len(expressions):
+                line += f"{i + j + 1}. {expressions[i + j]:<{max_width}}"  # 添加序号
+        print(line)
+
+# 打印格式化的表达式
+print_expressions_in_columns(all)
